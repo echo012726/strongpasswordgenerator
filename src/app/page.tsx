@@ -1,65 +1,332 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+
+interface PasswordOptions {
+  length: number;
+  uppercase: boolean;
+  lowercase: boolean;
+  numbers: boolean;
+  symbols: boolean;
+}
+
+interface PasswordHistory {
+  password: string;
+  timestamp: Date;
+  strength: string;
+}
+
+const CHAR_SETS = {
+  uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  lowercase: 'abcdefghijklmnopqrstuvwxyz',
+  numbers: '0123456789',
+  symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+};
+
+const tips = [
+  { title: "Use a Password Manager", text: "Don't memorize passwords - use a password manager like Bitwarden or 1Password to generate and store unique passwords for every site." },
+  { title: "Enable 2FA Wherever Possible", text: "Two-factor authentication adds an extra layer of security. Use an authenticator app instead of SMS when available." },
+  { title: "Never Reuse Passwords", text: "If one site gets breached, all your accounts are vulnerable. Use unique passwords for every account." },
+  { title: "Longer is Stronger", text: "A 20-character password with only lowercase letters is often stronger than an 8-character one with special characters." },
+  { title: "Passphrases Work Great", text: "Consider using random words like 'correct-horse-battery-staple' - they're easy to remember but hard to crack." },
+];
 
 export default function Home() {
+  const [password, setPassword] = useState('');
+  const [options, setOptions] = useState<PasswordOptions>({
+    length: 20,
+    uppercase: true,
+    lowercase: true,
+    numbers: true,
+    symbols: true
+  });
+  const [strength, setStrength] = useState(0);
+  const [strengthLabel, setStrengthLabel] = useState('');
+  const [crackTime, setCrackTime] = useState('');
+  const [history, setHistory] = useState<PasswordHistory[]>([]);
+  const [copied, setCopied] = useState(false);
+
+  const calculateEntropy = useCallback((pwd: string): number => {
+    let charsetSize = 0;
+    if (/[a-z]/.test(pwd)) charsetSize += 26;
+    if (/[A-Z]/.test(pwd)) charsetSize += 26;
+    if (/[0-9]/.test(pwd)) charsetSize += 10;
+    if (/[^a-zA-Z0-9]/.test(pwd)) charsetSize += 32;
+    if (charsetSize === 0) return 0;
+    return pwd.length * Math.log2(charsetSize);
+  }, []);
+
+  const estimateCrackTime = useCallback((entropy: number): string => {
+    const guessesPerSecond = 1e10;
+    const combinations = Math.pow(2, entropy);
+    const seconds = combinations / guessesPerSecond / 2;
+
+    if (seconds < 1) return 'Instantly';
+    if (seconds < 60) return `${Math.round(seconds)} seconds`;
+    if (seconds < 3600) return `${Math.round(seconds / 60)} minutes`;
+    if (seconds < 86400) return `${Math.round(seconds / 3600)} hours`;
+    if (seconds < 31536000) return `${Math.round(seconds / 86400)} days`;
+    if (seconds < 31536000 * 1000) return `${Math.round(seconds / 31536000)} years`;
+    if (seconds < 31536000 * 1e6) return `${Math.round(seconds / 31536000 / 1000)} thousand years`;
+    if (seconds < 31536000 * 1e9) return `${Math.round(seconds / 31536000 / 1e6)} million years`;
+    if (seconds < 31536000 * 1e12) return `${Math.round(seconds / 31536000 / 1e9)} billion years`;
+    return 'Centuries+';
+  }, []);
+
+  const calculateStrength = useCallback((pwd: string): { score: number; label: string } => {
+    const entropy = calculateEntropy(pwd);
+    
+    if (pwd.length === 0) return { score: 0, label: '' };
+    if (entropy < 28) return { score: 1, label: 'Very Weak' };
+    if (entropy < 36) return { score: 2, label: 'Weak' };
+    if (entropy < 60) return { score: 3, label: 'Fair' };
+    if (entropy < 80) return { score: 4, label: 'Strong' };
+    return { score: 5, label: 'Very Strong' };
+  }, [calculateEntropy]);
+
+  const generatePassword = useCallback(() => {
+    let charset = '';
+    if (options.uppercase) charset += CHAR_SETS.uppercase;
+    if (options.lowercase) charset += CHAR_SETS.lowercase;
+    if (options.numbers) charset += CHAR_SETS.numbers;
+    if (options.symbols) charset += CHAR_SETS.symbols;
+
+    if (charset === '') {
+      charset = CHAR_SETS.lowercase;
+    }
+
+    let pwd = '';
+    const array = new Uint32Array(options.length);
+    crypto.getRandomValues(array);
+    
+    for (let i = 0; i < options.length; i++) {
+      pwd += charset[array[i] % charset.length];
+    }
+
+    setPassword(pwd);
+    
+    const entropy = calculateEntropy(pwd);
+    const strengthResult = calculateStrength(pwd);
+    setStrength(strengthResult.score);
+    setStrengthLabel(strengthResult.label);
+    setCrackTime(estimateCrackTime(entropy));
+
+    setHistory(prev => {
+      const newHistory = [
+        { password: pwd, timestamp: new Date(), strength: strengthResult.label },
+        ...prev.slice(0, 9)
+      ];
+      localStorage.setItem('passwordHistory', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  }, [options, calculateEntropy, calculateStrength, estimateCrackTime]);
+
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(password);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const getStrengthColor = () => {
+    const colors = ['#ff6b6b', '#ff6b6b', '#feca57', '#feca57', '#26de81', '#26de81'];
+    return colors[strength] || '#8899a6';
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('passwordHistory');
+    if (saved) {
+      setHistory(JSON.parse(saved));
+    }
+    generatePassword();
+  }, []);
+
+  const optionChanged = (key: keyof PasswordOptions, value: boolean | number) => {
+    setOptions(prev => ({ ...prev, [key]: value }));
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-[#0f1419] text-white font-sans">
+      <header className="bg-[#1a2332] border-b border-[#2f3640] py-4 px-6">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <h1 className="text-xl font-bold text-[#00d4aa]">🔐 Strong Password Generator</h1>
+          <a href="https://marcussarmento.com" className="text-[#8899a6] hover:text-white text-sm">by Marcus Sarmento</a>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      </header>
+
+      <main className="max-w-4xl mx-auto p-6">
+        {/* Password Display */}
+        <div className="bg-[#1a2332] rounded-xl p-6 mb-6 border border-[#2f3640]">
+          <div className="flex items-center gap-4 mb-4">
+            <input
+              type="text"
+              value={password}
+              readOnly
+              className="flex-1 bg-[#0f1419] border border-[#2f3640] rounded-lg px-4 py-3 text-xl font-mono text-[#00d4aa]"
+              onChange={(e) => {
+                setPassword(e.target.value);
+                const entropy = calculateEntropy(e.target.value);
+                const strengthResult = calculateStrength(e.target.value);
+                setStrength(strengthResult.score);
+                setStrengthLabel(strengthResult.label);
+                setCrackTime(estimateCrackTime(entropy));
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <button
+              onClick={copyToClipboard}
+              className="bg-[#00d4aa] hover:bg-[#00b894] text-black font-semibold px-6 py-3 rounded-lg transition"
+            >
+              {copied ? '✓ Copied' : '📋 Copy'}
+            </button>
+            <button
+              onClick={generatePassword}
+              className="bg-[#00d4aa] hover:bg-[#00b894] text-black font-semibold px-6 py-3 rounded-lg transition"
+            >
+              🎲 Generate
+            </button>
+          </div>
+
+          {password && (
+            <div className="mb-2">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-[#8899a6]">Strength:</span>
+                <span style={{ color: getStrengthColor() }}>{strengthLabel}</span>
+              </div>
+              <div className="h-2 bg-[#0f1419] rounded-full overflow-hidden">
+                <div
+                  className="h-full transition-all duration-300"
+                  style={{ width: `${(strength / 5) * 100}%`, backgroundColor: getStrengthColor() }}
+                />
+              </div>
+            </div>
+          )}
+
+          {password && (
+            <div className="text-sm text-[#8899a6]">
+              ⏱️ Estimated crack time: <span className="text-white">{crackTime}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Options */}
+        <div className="bg-[#1a2332] rounded-xl p-6 mb-6 border border-[#2f3640]">
+          <h2 className="text-lg font-semibold mb-4">⚙️ Options</h2>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[#8899a6] mb-2">Password Length: {options.length}</label>
+              <input
+                type="range"
+                min="4"
+                max="64"
+                value={options.length}
+                onChange={(e) => optionChanged('length', parseInt(e.target.value))}
+                className="w-full accent-[#00d4aa]"
+              />
+              <div className="flex justify-between text-xs text-[#8899a6] mt-1">
+                <span>4</span>
+                <span>64</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { key: 'uppercase', label: 'Uppercase (A-Z)' },
+                { key: 'lowercase', label: 'Lowercase (a-z)' },
+                { key: 'numbers', label: 'Numbers (0-9)' },
+                { key: 'symbols', label: 'Symbols (!@#$%)' }
+              ].map(({ key, label }) => (
+                <label key={key} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={options[key as keyof PasswordOptions] as boolean}
+                    onChange={(e) => optionChanged(key as keyof PasswordOptions, e.target.checked)}
+                    className="w-5 h-5 accent-[#00d4aa]"
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Password History */}
+        {history.length > 0 && (
+          <div className="bg-[#1a2332] rounded-xl p-6 mb-6 border border-[#2f3640]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">📜 Password History</h2>
+              <button
+                onClick={() => {
+                  setHistory([]);
+                  localStorage.removeItem('passwordHistory');
+                }}
+                className="text-sm text-[#8899a6] hover:text-white"
+              >
+                Clear
+              </button>
+            </div>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {history.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between items-center bg-[#0f1419] px-4 py-2 rounded font-mono text-sm"
+                >
+                  <span className="text-[#00d4aa] truncate max-w-xs">{item.password}</span>
+                  <span className="text-[#8899a6] text-xs">{item.strength}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Password Security Tips */}
+        <div className="bg-[#1a2332] rounded-xl p-6 mb-6 border border-[#2f3640]">
+          <h2 className="text-lg font-semibold mb-4">🛡️ Password Security Tips</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {tips.map((tip, i) => (
+              <div key={i} className="bg-[#0f1419] p-4 rounded-lg">
+                <h3 className="font-semibold text-[#00d4aa] mb-2">💡 {tip.title}</h3>
+                <p className="text-sm text-[#8899a6]">{tip.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* What is Password Entropy */}
+        <div className="bg-[#1a2332] rounded-xl p-6 mb-6 border border-[#2f3640]">
+          <h2 className="text-lg font-semibold mb-4">📊 What is Password Entropy?</h2>
+          <div className="text-[#8899a6] space-y-3">
+            <p>Password entropy measures how hard a password is to guess. It's measured in <strong className="text-white">bits</strong> - the higher the number, the stronger the password.</p>
+            <ul className="list-disc list-inside space-y-2 text-sm">
+              <li><span className="text-[#ff6b6b]">Less than 28 bits:</span> Very Weak - Can be cracked instantly</li>
+              <li><span className="text-[#feca57]">28-35 bits:</span> Weak - Vulnerable to fast attacks</li>
+              <li><span className="text-[#feca57]">36-59 bits:</span> Fair - Okay for low-risk accounts</li>
+              <li><span className="text-[#26de81]">60-79 bits:</span> Strong - Good for most accounts</li>
+              <li><span className="text-[#26de81]">80+ bits:</span> Very Strong - Excellent security</li>
+            </ul>
+            <p className="text-sm mt-4">This generator creates passwords with <strong className="text-white">80+ bits of entropy</strong> by default - practically uncrackable!</p>
+          </div>
+        </div>
+
+        {/* About */}
+        <div className="bg-[#1a2332] rounded-xl p-6 mb-6 border border-[#2f3640]">
+          <h2 className="text-lg font-semibold mb-4">ℹ️ About This Tool</h2>
+          <div className="text-[#8899a6] text-sm space-y-2">
+            <p>This password generator creates cryptographically secure passwords using your browser's built-in <strong className="text-white">crypto.getRandomValues()</strong> API - the same technology used by password managers and security professionals.</p>
+            <p>All passwords are generated <strong className="text-white">locally on your device</strong>. Nothing is ever sent to any server.</p>
+          </div>
+        </div>
+
+        {/* AdSense */}
+        <div className="mt-6">
+          <div className="bg-[#1a2332] py-4 rounded-lg border border-[#2f3640] text-center">
+            <span className="text-[#8899a6] text-sm">Advertisement</span>
+          </div>
         </div>
       </main>
+
+      <footer className="text-center py-6 text-[#8899a6] text-sm">
+        <p>🔒 Your passwords are generated locally. Nothing is sent to any server.</p>
+      </footer>
     </div>
   );
 }
