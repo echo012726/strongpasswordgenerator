@@ -291,6 +291,19 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Recommended Tools CTA */}
+        <div className="bg-[#1a1040] rounded-xl p-6 mb-6 border border-[#4f46e5]/30">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <h2 className="text-lg font-semibold mb-1">🔐 Store Your Passwords Safely</h2>
+              <p className="text-sm text-[#8899a6] max-w-md">A strong password is only as good as where you store it. See our picks for the best password managers and security tools.</p>
+            </div>
+            <a href="/recommended-tools" className="bg-[#4f46e5] text-white px-5 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap hover:bg-[#4338ca] transition-colors">
+              View Recommended Tools →
+            </a>
+          </div>
+        </div>
+
         {/* What is Password Entropy */}
         <div className="bg-[#1a2332] rounded-xl p-6 mb-6 border border-[#2f3640]">
           <h2 className="text-lg font-semibold mb-4">📊 What is Password Entropy?</h2>
