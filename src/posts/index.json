@@ -1,0 +1,92 @@
+[
+  {
+    "slug": "how-to-use-a-password-manager",
+    "title": "How to Use a Password Manager: A Complete Beginner's Guide",
+    "date": "2026-05-09",
+    "category": "Password Security",
+    "readingTime": "7 min",
+    "tags": ["password manager", "security basics", "1Password", "NordPass"],
+    "excerpt": "Password managers are the single most effective security upgrade you can make today. This guide walks you through choosing one, setting it up, and using it safely from day one."
+  },
+  {
+    "slug": "two-factor-authentication-complete-guide",
+    "title": "Two-Factor Authentication: The Complete Guide to 2FA",
+    "date": "2026-05-09",
+    "category": "Account Security",
+    "readingTime": "8 min",
+    "tags": ["2FA", "two-factor authentication", "authenticator app", "account security"],
+    "excerpt": "Two-factor authentication stops the vast majority of account takeovers, even when your password has been stolen. Here's everything you need to know about setting it up correctly."
+  },
+  {
+    "slug": "securing-your-email-account",
+    "title": "How to Secure Your Email Account: The Master Key to Your Digital Life",
+    "date": "2026-05-09",
+    "category": "Account Security",
+    "readingTime": "7 min",
+    "tags": ["email security", "Gmail", "account security", "phishing"],
+    "excerpt": "Your email account is the skeleton key for every other account you own. If an attacker gets in, they can reset every password you have. Here's how to lock it down completely."
+  },
+  {
+    "slug": "what-is-phishing-and-how-to-avoid-it",
+    "title": "What Is Phishing and How to Avoid It: A Practical Defense Guide",
+    "date": "2026-05-09",
+    "category": "Threats & Attacks",
+    "readingTime": "8 min",
+    "tags": ["phishing", "social engineering", "scams", "email security"],
+    "excerpt": "Phishing is the leading cause of data breaches worldwide. Learn how to spot fake emails, websites, and text messages before they steal your credentials or money."
+  },
+  {
+    "slug": "securing-online-banking",
+    "title": "How to Secure Your Online Banking: 9 Steps Banks Don't Tell You",
+    "date": "2026-05-09",
+    "category": "Financial Security",
+    "readingTime": "7 min",
+    "tags": ["online banking", "financial security", "fraud prevention", "account security"],
+    "excerpt": "Bank fraud losses hit record highs every year. These nine steps will significantly reduce your risk of having your accounts drained — going beyond the basics your bank tells you."
+  },
+  {
+    "slug": "wifi-password-best-practices",
+    "title": "Wi-Fi Password Best Practices: Securing Your Home and Office Network",
+    "date": "2026-05-09",
+    "category": "Network Security",
+    "readingTime": "6 min",
+    "tags": ["wifi security", "WPA3", "network security", "router"],
+    "excerpt": "A weak Wi-Fi password doesn't just let neighbors steal your bandwidth — it puts every device on your network at risk. Here's how to properly secure your router and wireless network."
+  },
+  {
+    "slug": "password-security-for-seniors",
+    "title": "Password Security for Seniors: Simple Steps to Stay Safe Online",
+    "date": "2026-05-09",
+    "category": "Password Security",
+    "readingTime": "6 min",
+    "tags": ["seniors", "elder fraud", "password safety", "beginner security"],
+    "excerpt": "Older adults are targeted by online scammers at disproportionate rates. This straightforward guide explains password security and account protection without technical jargon."
+  },
+  {
+    "slug": "securing-social-media-accounts",
+    "title": "Securing Your Social Media Accounts: Facebook, Instagram, X, and More",
+    "date": "2026-05-09",
+    "category": "Account Security",
+    "readingTime": "7 min",
+    "tags": ["social media security", "Facebook", "Instagram", "account takeover"],
+    "excerpt": "Social media account takeovers are used to scam your friends, spread misinformation, and conduct fraud under your identity. Here's how to lock down every major platform."
+  },
+  {
+    "slug": "password-security-audit-checklist",
+    "title": "Password Security Audit Checklist: 20 Things to Check Right Now",
+    "date": "2026-05-09",
+    "category": "Password Security",
+    "readingTime": "9 min",
+    "tags": ["security audit", "checklist", "password hygiene", "account security"],
+    "excerpt": "A practical, step-by-step security audit you can complete in an afternoon. Work through this checklist to find and fix the vulnerabilities in your current password setup."
+  },
+  {
+    "slug": "github-security-best-practices",
+    "title": "GitHub Security Best Practices: Protecting Your Code and Credentials",
+    "date": "2026-05-09",
+    "category": "Developer Security",
+    "readingTime": "8 min",
+    "tags": ["GitHub", "developer security", "secrets management", "SSH keys"],
+    "excerpt": "Leaked credentials in Git commits have caused some of the largest data breaches in history. This guide covers how to secure your GitHub account and prevent secrets from ever hitting your repositories."
+  }
+]
