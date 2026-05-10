@@ -101,10 +101,15 @@ export default function BlogIndex() {
         </div>
       </main>
 
-      <footer style={{ borderTop: "1px solid #2f3640", padding: "1.5rem", textAlign: "center", color: "#4a5568", fontSize: "0.8rem", marginTop: "3rem" }}>
-        <a href="/" style={{ color: "#00d4aa", textDecoration: "none" }}>← Back to Password Generator</a>
-        {" · "}
-        <a href="/recommended-tools" style={{ color: "#6366f1", textDecoration: "none" }}>Recommended Tools</a>
+      <footer style={{ borderTop: "1px solid #2f3640", padding: "2rem 1.5rem", textAlign: "center", color: "#8899a6", fontSize: "0.8rem", marginTop: "3rem" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1.5rem", marginBottom: "0.75rem" }}>
+          <a href="/" style={{ color: "#00d4aa", textDecoration: "none" }}>Home</a>
+          <a href="/about" style={{ color: "#8899a6", textDecoration: "none" }}>About</a>
+          <a href="/contact" style={{ color: "#8899a6", textDecoration: "none" }}>Contact</a>
+          <a href="/privacy" style={{ color: "#8899a6", textDecoration: "none" }}>Privacy Policy</a>
+          <a href="/recommended-tools" style={{ color: "#6366f1", textDecoration: "none" }}>Recommended Tools</a>
+        </div>
+        <p style={{ margin: 0 }}>🔒 Your passwords are generated locally. Nothing is sent to any server.</p>
       </footer>
     </div>
   );

@@ -189,12 +189,19 @@ export default function RecommendedTools() {
 
         <footer style={{
           borderTop: "1px solid rgba(255,255,255,0.1)",
-          paddingTop: "1.5rem",
+          padding: "2rem 1.5rem",
           textAlign: "center",
-          color: "#475569",
+          color: "#8899a6",
           fontSize: "0.8rem",
         }}>
-          <a href="/" style={{ color: "#6366f1", textDecoration: "none" }}>← Back to Password Generator</a>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1.5rem", marginBottom: "0.75rem" }}>
+            <a href="/" style={{ color: "#6366f1", textDecoration: "none" }}>Home</a>
+            <a href="/about" style={{ color: "#8899a6", textDecoration: "none" }}>About</a>
+            <a href="/contact" style={{ color: "#8899a6", textDecoration: "none" }}>Contact</a>
+            <a href="/privacy" style={{ color: "#8899a6", textDecoration: "none" }}>Privacy Policy</a>
+            <a href="/blog" style={{ color: "#8899a6", textDecoration: "none" }}>Blog</a>
+          </div>
+          <p style={{ margin: 0 }}>🔒 Your passwords are generated locally. Nothing is sent to any server.</p>
         </footer>
       </div>
     </div>

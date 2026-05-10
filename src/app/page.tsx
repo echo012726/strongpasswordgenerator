@@ -337,8 +337,17 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="text-center py-6 text-[#8899a6] text-sm">
-        <p>🔒 Your passwords are generated locally. Nothing is sent to any server.</p>
+      <footer className="text-center py-8 text-[#8899a6] text-sm border-t border-[#2f3640]">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex flex-wrap justify-center gap-6 mb-3">
+            <a href="/about" className="hover:text-white transition-colors">About</a>
+            <a href="/contact" className="hover:text-white transition-colors">Contact</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/recommended-tools" className="hover:text-white transition-colors">Recommended Tools</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
+          </div>
+          <p>🔒 Your passwords are generated locally. Nothing is sent to any server.</p>
+        </div>
       </footer>
     </div>
   );
